@@ -1,4 +1,3 @@
-<img width="1917" height="973" alt="Screenshot 2026-10-28 155205" src="https://github.com/user-attachments/assets/3fc1cbc8-736a-4315-b536-51d6b7814ad8" /><img width="1917" height="975" alt="Screenshot 2026-10-28 155128" src="https://github.com/user-attachments/assets/fb571216-b005-490b-867d-0dd42f6882e0" />
 
 # File Integrity Checker
 
@@ -11,6 +10,7 @@
 Demonstrate how cryptographic hash functions can be used to detect file and text modifications. A SHA-256 hash is a fixed-length "fingerprint" of any content. Even a single changed character produces a completely different hash, making it a reliable method for detecting tampering or accidental corruption.
 
 ---
+<img width="1917" height="973" alt="Screenshot 2026-10-28 155205" src="https://github.com/user-attachments/assets/3fc1cbc8-736a-4315-b536-51d6b7814ad8" />
 
 ## What is SHA-256?
 
