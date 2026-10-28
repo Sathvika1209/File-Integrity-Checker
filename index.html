@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<!--
+  Theme is set on <html> before the body renders to prevent a flash.
+  The inline script below reads localStorage immediately.
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Integrity Checker — SHA-256</title>
+  <meta name="description" content="A browser-based tool for verifying file and text integrity using the SHA-256 cryptographic hash algorithm. Built for an Information Security lab." />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Apply saved theme before paint — prevents flash of wrong theme -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        if (saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- ══════════════ Page-level top bar ══════════════ -->
+  <div class="topbar">
+    <span class="topbar-title">File Integrity Checker</span>
+    <!-- Theme toggle -->
+    <button id="btn-theme" class="btn-theme" type="button"
+            aria-label="Toggle light/dark theme" title="Toggle theme">
+      <span id="theme-icon" aria-hidden="true">☀</span>
+    </button>
+  </div>
+
+  <!-- ══════════════ Application Container ══════════════ -->
+  <div class="container" role="main">
+
+    <!-- Header -->
+    <header class="header" aria-label="Application header">
+      <h1>File Integrity Checker</h1>
+      <p>Verify file integrity with SHA-256</p>
+    </header>
+
+    <!-- ── Mode tabs ─────────────────────────────────── -->
+    <div class="tab-bar" role="tablist" aria-label="Verification mode">
+      <button id="tab-file" class="tab active" type="button"
+              role="tab" aria-selected="true" aria-controls="panel-file">
+        📄 Verify a File
+      </button>
+      <button id="tab-text" class="tab" type="button"
+              role="tab" aria-selected="false" aria-controls="panel-text">
+        📝 Verify Text
+      </button>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+         MODE A — FILE VERIFICATION
+         ════════════════════════════════════════════════ -->
+    <div id="panel-file" role="tabpanel" aria-labelledby="tab-file">
+
+      <!-- Step 1: Select file -->
+      <section class="card" aria-label="File upload">
+        <div class="card-title">Step 1 — Select a File</div>
+
+        <div id="upload-area" class="upload-area" tabindex="0"
+             role="button" aria-label="Choose a file to hash">
+          <input id="file-input" type="file" aria-label="File picker" title="Choose a file" />
+          <span class="upload-icon" aria-hidden="true">📂</span>
+          <p>
+            Drag &amp; drop a file here, or
+            <span class="choose-label">choose a file</span>
+          </p>
+        </div>
+
+        <!-- File metadata shown after selection -->
+        <div id="file-info-panel" class="file-info" aria-live="polite">
+          <div class="file-info-row">
+            <span class="file-info-label">Name</span>
+            <span id="file-name" class="file-info-value">—</span>
+          </div>
+          <div class="file-info-row">
+            <span class="file-info-label">Size</span>
+            <span id="file-size" class="file-info-value">—</span>
+          </div>
+          <div class="file-info-row">
+            <span class="file-info-label">Type</span>
+            <span id="file-type" class="file-info-value">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Calculate hash -->
+      <section class="card" aria-label="File SHA-256 calculation">
+        <div class="card-title">Step 2 — Calculate SHA-256 Hash</div>
+
+        <div id="file-hash-block" class="hash-block-wrapper visible">
+          <div class="hash-label">SHA-256 Hash</div>
+          <code id="file-hash-value" class="hash-value empty"
+                aria-live="polite" aria-label="File SHA-256 hash output">
+            Select a file above to begin.
+          </code>
+          <span id="file-hash-status" aria-live="polite" class="hash-status-text"></span>
+        </div>
+
+        <div class="btn-row">
+          <button id="file-btn-calculate" class="btn btn-primary" type="button"
+                  aria-label="Calculate SHA-256 hash of the selected file">
+            ⚙ Calculate Hash
+          </button>
+          <button id="file-btn-copy" class="btn btn-secondary" type="button"
+                  aria-label="Copy file hash to clipboard">
+            📋 Copy Hash
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 3: Save reference -->
+      <section class="card" aria-label="Save file reference hash">
+        <div class="card-title">Step 3 — Save as Original Reference</div>
+        <p class="card-hint">
+          After calculating the hash of your original (unmodified) file,
+          save it here as the reference. Future hashes are compared against this value.
+        </p>
+
+        <div id="file-saved-panel" class="saved-hash-panel" aria-live="polite">
+          <div class="panel-label">✓ Original Hash Saved</div>
+          <code id="file-saved-value" class="saved-value"></code>
+        </div>
+
+        <div class="btn-row">
+          <button id="file-btn-save" class="btn btn-primary" type="button"
+                  aria-label="Save current file hash as the original reference">
+            💾 Save as Original
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 4: Verify -->
+      <section class="card" aria-label="File integrity verification">
+        <div class="card-title">Step 4 — Verify File Integrity</div>
+        <p class="card-hint">
+          Select the file you want to verify. The application will calculate its hash
+          and compare it with the saved original reference.
+        </p>
+
+        <div id="file-result-panel" class="result-panel" role="status" aria-live="assertive">
+          <div id="file-result-status" class="result-status"></div>
+          <div id="file-result-desc" class="result-description"></div>
+        </div>
+
+        <div class="btn-row">
+          <button id="file-btn-verify" class="btn btn-primary" type="button"
+                  aria-label="Verify the selected file against the saved original hash">
+            🔍 Verify Integrity
+          </button>
+          <button id="file-btn-reset" class="btn btn-danger" type="button"
+                  aria-label="Reset file verification state">
+            ↺ Reset
+          </button>
+        </div>
+      </section>
+
+    </div><!-- /panel-file -->
+
+    <!-- ════════════════════════════════════════════════
+         MODE B — TEXT VERIFICATION
+         ════════════════════════════════════════════════ -->
+    <div id="panel-text" role="tabpanel" aria-labelledby="tab-text" hidden>
+
+      <!-- Step 1: Enter text -->
+      <section class="card" aria-label="Text input">
+        <div class="card-title">Step 1 — Enter or Paste Text</div>
+        <p class="card-hint">
+          Type or paste any text below. The SHA-256 hash is computed from
+          the exact UTF-8 encoded bytes — whitespace, punctuation,
+          capitalisation, and line breaks are all preserved.
+        </p>
+
+        <textarea
+          id="text-input"
+          class="text-area"
+          rows="6"
+          placeholder="Type or paste text here…"
+          spellcheck="false"
+          aria-label="Text to hash"
+        ></textarea>
+
+        <div class="btn-row">
+          <button id="text-btn-clear-input" class="btn btn-secondary" type="button"
+                  aria-label="Clear the text input">
+            ✕ Clear Text
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 2: Calculate hash -->
+      <section class="card" aria-label="Text SHA-256 calculation">
+        <div class="card-title">Step 2 — Calculate SHA-256 Hash</div>
+
+        <div id="text-hash-block" class="hash-block-wrapper visible">
+          <div class="hash-label">SHA-256 Hash</div>
+          <code id="text-hash-value" class="hash-value empty"
+                aria-live="polite" aria-label="Text SHA-256 hash output">
+            Enter text above and click Calculate Hash.
+          </code>
+          <span id="text-hash-status" aria-live="polite" class="hash-status-text"></span>
+        </div>
+
+        <div class="btn-row">
+          <button id="text-btn-calculate" class="btn btn-primary" type="button"
+                  aria-label="Calculate SHA-256 hash of the entered text">
+            ⚙ Calculate Hash
+          </button>
+          <button id="text-btn-copy" class="btn btn-secondary" type="button"
+                  aria-label="Copy text hash to clipboard">
+            📋 Copy Hash
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 3: Save reference -->
+      <section class="card" aria-label="Save text reference hash">
+        <div class="card-title">Step 3 — Save as Original Reference</div>
+        <p class="card-hint">
+          After calculating the hash of your original text, save it as
+          the reference. You can then edit the text and verify whether it has changed.
+        </p>
+
+        <div id="text-saved-panel" class="saved-hash-panel" aria-live="polite">
+          <div class="panel-label">✓ Original Hash Saved</div>
+          <code id="text-saved-value" class="saved-value"></code>
+        </div>
+
+        <div class="btn-row">
+          <button id="text-btn-save" class="btn btn-primary" type="button"
+                  aria-label="Save current text hash as the original reference">
+            💾 Save as Original
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 4: Verify -->
+      <section class="card" aria-label="Text integrity verification">
+        <div class="card-title">Step 4 — Verify Text Integrity</div>
+        <p class="card-hint">
+          Edit the text above, then click Verify. The hash of the current
+          text is compared with the saved reference hash.
+        </p>
+
+        <div id="text-result-panel" class="result-panel" role="status" aria-live="assertive">
+          <div id="text-result-status" class="result-status"></div>
+          <div id="text-result-desc" class="result-description"></div>
+        </div>
+
+        <div class="btn-row">
+          <button id="text-btn-verify" class="btn btn-primary" type="button"
+                  aria-label="Verify the current text against the saved original hash">
+            🔍 Verify Integrity
+          </button>
+          <button id="text-btn-reset" class="btn btn-danger" type="button"
+                  aria-label="Reset text verification state">
+            ↺ Reset
+          </button>
+        </div>
+      </section>
+
+    </div><!-- /panel-text -->
+
+    <!-- ── Privacy notice ─────────────────────────────── -->
+    <div class="notice" role="note">
+      <span class="notice-icon">🔒</span>
+      <span>
+        <strong>Privacy:</strong> No files or text are uploaded or transmitted anywhere.
+        All SHA-256 hashing is performed locally in your browser using the Web Crypto API.
+        Reference hashes are kept in session memory only and are cleared on reset or page close.
+      </span>
+    </div>
+
+  </div><!-- /container -->
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer>
+    Information Security Lab &nbsp;|&nbsp; SHA-256 File Verification
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
