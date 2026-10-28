@@ -1,5 +1,6 @@
 
 # File Integrity Checker
+### Team - 2
 
 > An Information Security lab project that verifies file and text integrity using the SHA-256 cryptographic hash algorithm — entirely in the browser, with no backend.
 
