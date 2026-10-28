@@ -1,3 +1,5 @@
+<img width="1917" height="973" alt="Screenshot 2026-10-28 155205" src="https://github.com/user-attachments/assets/3fc1cbc8-736a-4315-b536-51d6b7814ad8" /><img width="1917" height="975" alt="Screenshot 2026-10-28 155128" src="https://github.com/user-attachments/assets/fb571216-b005-490b-867d-0dd42f6882e0" />
+
 # File Integrity Checker
 
 > An Information Security lab project that verifies file and text integrity using the SHA-256 cryptographic hash algorithm — entirely in the browser, with no backend.
@@ -303,5 +305,8 @@ This project was built as part of an **Information Security laboratory activity*
 - Text integrity checking as a foundation for message authentication concepts.
 
 ---
+<img width="1917" height="973" alt="Screenshot 2026-10-28 155205" src="https://github.com/user-attachments/assets/31b7e4d5-22d2-4ae6-a732-5beb7bb509ba" />
+
+<img width="1917" height="976" alt="Screenshot 2026-10-28 155424" src="https://github.com/user-attachments/assets/e603306e-dbfd-4611-b625-d0d6da120f0f" />
 
 *Information Security Lab | SHA-256 File Verification*
